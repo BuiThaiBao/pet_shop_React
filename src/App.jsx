@@ -1,0 +1,45 @@
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Header from './components/common/Header';
+import Footer from './components/common/Footer';
+import Toast from './components/common/Toast';
+import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
+import CartPage from './components/cart/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
+import ProfilePage from './components/user/ProfilePage';
+import OrdersPage from './components/user/OrdersPage';
+import AppointmentsPage from './components/user/AppointmentsPage';
+import ServicesPage from './components/services/ServicesPage';
+import AdoptionPage from './components/adoption/AdoptionPage';
+import AdoptionRequestsPage from './components/adoption/AdoptionRequestsPage';
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <main style={{ marginTop: '76px' }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/adoption" element={<AdoptionPage />} />
+          <Route path="/adoption-requests" element={<AdoptionRequestsPage />} />
+        </Routes>
+      </main>
+      <Footer />
+      <Toast />
+    </div>
+  );
+}
+
+export default App;
