@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { pets } from '../../data/pets';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { PetDetailModal, AdoptionApplicationModal } from './AdoptionModal';
 
 const AdoptionPage = () => {
   const [filters, setFilters] = useState({
@@ -12,6 +13,10 @@ const AdoptionPage = () => {
   
   const { user } = useAuth();
   const { showToast } = useToast();
+
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isApplicationOpen, setIsApplicationOpen] = useState(false);
 
   // Filter pets based on selected filters
   const filteredPets = useMemo(() => {
@@ -43,8 +48,19 @@ const AdoptionPage = () => {
       showToast('Vui lòng đăng nhập để đăng ký nhận nuôi', 'warning');
       return;
     }
-    
-    showToast(`Bạn đã đăng ký nhận nuôi ${pet.name}! Chúng tôi sẽ liên hệ với bạn sớm.`, 'success');
+    setSelectedPet(pet);
+    setIsDetailOpen(true);
+  };
+
+  const openApplication = () => {
+    setIsDetailOpen(false);
+    setIsApplicationOpen(true);
+  };
+
+  const submitApplication = (form) => {
+    setIsApplicationOpen(false);
+    showToast(`Đã gửi đơn nhận nuôi ${selectedPet?.name}. Chúng tôi sẽ liên hệ sớm!`, 'success');
+    setSelectedPet(null);
   };
 
   const getAgeText = (age) => {
@@ -181,6 +197,19 @@ const AdoptionPage = () => {
           </div>
         </div>
       </div>
+
+      <PetDetailModal
+        isOpen={isDetailOpen}
+        pet={selectedPet}
+        onClose={() => setIsDetailOpen(false)}
+        onApply={openApplication}
+      />
+
+      <AdoptionApplicationModal
+        isOpen={isApplicationOpen}
+        onClose={() => setIsApplicationOpen(false)}
+        onSubmit={submitApplication}
+      />
     </div>
   );
 };
