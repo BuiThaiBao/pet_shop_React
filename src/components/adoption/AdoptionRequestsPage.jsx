@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
@@ -50,6 +51,7 @@ const MOCK_REQUESTS = [
 
 const AdoptionRequestsPage = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -67,7 +69,7 @@ const AdoptionRequestsPage = () => {
   }, [statusFilter, search]);
 
   const handleView = (req) => {
-    showToast(`Xem chi tiết ${req.id} - ${req.petName}`, 'info');
+    navigate(`/adoption-requests/${req.id}`);
   };
 
   const handleContact = (req) => {

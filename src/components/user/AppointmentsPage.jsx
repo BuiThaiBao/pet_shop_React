@@ -1,24 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
+import AppointmentEditModal from './AppointmentEditModal';
 
 const AppointmentsPage = () => {
-  const sampleAppointments = [
+  const [items, setItems] = useState([
     {
       id: 'APT001',
+      serviceType: 'grooming',
       service: 'Tắm rửa & cắt tỉa lông',
+      petType: 'dog',
       pet: 'Buddy (Chó)',
-      datetime: '25/09/2025 10:00',
+      petName: 'Buddy',
+      appointmentDate: '2025-09-25',
+      appointmentTime: '10:00',
       status: 'Đã đặt',
       statusClass: 'bg-warning'
     },
     {
       id: 'APT002',
+      serviceType: 'veterinary',
       service: 'Khám sức khỏe',
+      petType: 'cat',
       pet: 'Mimi (Mèo)',
-      datetime: '20/09/2025 14:00',
+      petName: 'Mimi',
+      appointmentDate: '2025-09-20',
+      appointmentTime: '14:00',
       status: 'Hoàn thành',
       statusClass: 'bg-success'
     }
-  ];
+  ]);
+
+  const [editing, setEditing] = useState(null);
+
+  const openEdit = (apt) => setEditing(apt);
+  const closeEdit = () => setEditing(null);
+
+  const handleSave = (form) => {
+    setItems((prev) => prev.map((a) => a.id === editing.id ? {
+      ...a,
+      ...form,
+      service: form.serviceType === 'grooming' ? 'Tắm rửa & cắt tỉa lông' : form.serviceType === 'veterinary' ? 'Khám sức khỏe' : form.serviceType === 'training' ? 'Huấn luyện thú cưng' : 'Gửi thú cưng',
+      pet: `${form.petName || a.petName} (${form.petType === 'dog' ? 'Chó' : form.petType === 'cat' ? 'Mèo' : form.petType === 'bird' ? 'Chim' : 'Khác'})`
+    } : a));
+  };
+
+  const handleCancel = (id) => {
+    setItems((prev) => prev.filter((a) => a.id !== id));
+  };
 
   return (
     <div className="container page-content">
@@ -38,12 +65,12 @@ const AppointmentsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleAppointments.map(appointment => (
+                {items.map(appointment => (
                   <tr key={appointment.id}>
                     <td>#{appointment.id}</td>
                     <td>{appointment.service}</td>
                     <td>{appointment.pet}</td>
-                    <td>{appointment.datetime}</td>
+                    <td>{new Date(`${appointment.appointmentDate}T${appointment.appointmentTime}`).toLocaleString('vi-VN')}</td>
                     <td>
                       <span className={`badge ${appointment.statusClass}`}>
                         {appointment.status}
@@ -52,8 +79,8 @@ const AppointmentsPage = () => {
                     <td>
                       {appointment.status === 'Đã đặt' ? (
                         <>
-                          <button className="btn btn-sm btn-outline-primary me-1">Sửa</button>
-                          <button className="btn btn-sm btn-outline-danger">Hủy</button>
+                          <button className="btn btn-sm btn-outline-primary me-1" onClick={() => openEdit(appointment)}>Sửa</button>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleCancel(appointment.id)}>Hủy</button>
                         </>
                       ) : (
                         <button className="btn btn-sm btn-outline-primary">Đánh giá</button>
@@ -66,6 +93,13 @@ const AppointmentsPage = () => {
           </div>
         </div>
       </div>
+
+      <AppointmentEditModal
+        isOpen={Boolean(editing)}
+        onClose={closeEdit}
+        initial={editing}
+        onSave={handleSave}
+      />
     </div>
   );
 };

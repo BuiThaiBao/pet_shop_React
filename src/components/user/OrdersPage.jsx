@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const OrdersPage = () => {
+  const navigate = useNavigate();
   const sampleOrders = [
     {
       id: 'ORD001',
@@ -49,7 +51,7 @@ const OrdersPage = () => {
                     <td><span className={`badge ${order.statusClass}`}>{order.status}</span></td>
                     <td>${order.total.toFixed(2)}</td>
                     <td>
-                      <button className="btn btn-sm btn-outline-primary me-1">
+                      <button className="btn btn-sm btn-outline-primary me-1" onClick={() => navigate(`/orders/${order.id}`)}>
                         Xem chi tiết
                       </button>
                       {order.status === 'Đã giao' && (

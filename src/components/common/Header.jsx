@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -21,12 +21,17 @@ const Header = () => {
     navigate('/');
   };
 
+  const activeStyle = ({ isActive }) => ({
+    color: isActive ? '#f59f00' : undefined,
+    fontWeight: isActive ? 600 : undefined
+  });
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light fixed-top">
       <div className="container">
         <Link className="navbar-brand" to="/">
           <i className="fas fa-paw text-warning"></i> 
-          <span className="text-warning">PawMart</span><span>Home</span>
+          <span className="text-warning">PawMart</span>
         </Link>
         
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -36,13 +41,13 @@ const Header = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/products">Sản phẩm</Link>
+              <NavLink className="nav-link" to="/products" style={activeStyle}>Sản phẩm</NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/services">Dịch vụ</Link>
+              <NavLink className="nav-link" to="/services" style={activeStyle}>Dịch vụ</NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/adoption">Nhận nuôi</Link>
+              <NavLink className="nav-link" to="/adoption" style={activeStyle}>Nhận nuôi</NavLink>
             </li>
           </ul>
           

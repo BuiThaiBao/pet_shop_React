@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { products } from '../data/products';
 import ProductCard from '../components/product/ProductCard';
 
 const ProductsPage = () => {
-  console.log('ProductsPage rendered, products:', products);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
+  const totalPages = Math.max(1, Math.ceil(products.length / pageSize));
+  const paginated = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return products.slice(start, start + pageSize);
+  }, [currentPage]);
+
+  const goTo = (page) => {
+    const p = Math.min(totalPages, Math.max(1, page));
+    setCurrentPage(p);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const prev = () => goTo(currentPage - 1);
+  const next = () => goTo(currentPage + 1);
+
   return (
     <div className="page" id="products">
       <div className="container page-content">
@@ -44,7 +59,7 @@ const ProductsPage = () => {
           <div className="col-lg-9">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <span className="text-muted">
-                Hiển thị {products.length} sản phẩm
+                Hiển thị {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, products.length)} trong {products.length} sản phẩm
               </span>
               <select className="form-select" style={{width: 'auto'}}>
                 <option>Sắp xếp theo giá: Thấp đến cao</option>
@@ -54,10 +69,26 @@ const ProductsPage = () => {
               </select>
             </div>
             <div className="row">
-              {products.map(product => (
+              {paginated.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
+
+            <nav aria-label="Pagination" className="mt-4 d-flex justify-content-center">
+              <ul className="pagination">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={prev}><i class="fa-solid fa-less-than fa-xs"></i></button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <li key={p} className={`page-item ${p === currentPage ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => goTo(p)}>{p}</button>
+                  </li>
+                ))}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={next}><i class="fa-solid fa-greater-than fa-xs"></i></button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
