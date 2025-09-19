@@ -1,36 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import ProductCard from '../components/product/ProductCard';
+import ServicesGrid from '../components/services/ServicesGrid';
+import { getActiveServices } from '../data/services';
 
 const HomePage = () => {
   const navigate = useNavigate();
   // Pick up to 4 products for the featured section
   const featuredProducts = (products.filter(p => p.featured).slice(0, 4).length ? products.filter(p => p.featured).slice(0, 4) : products.slice(0, 4));
 
-  const services = [
-    {
-      key: 'grooming',
-      icon: 'fas fa-heart',
-      title: 'Tắm rửa & cắt tỉa lông',
-      description: 'Chăm sóc lông toàn diện: tắm, cắt tỉa, vệ sinh tai...',
-      price: 65.0
-    },
-    {
-      key: 'veterinary',
-      icon: 'fas fa-stethoscope',
-      title: 'Khám sức khỏe thú y',
-      description: 'Khám tổng quát bởi bác sĩ thú y giàu kinh nghiệm',
-      price: 85.0
-    },
-    {
-      key: 'training',
-      icon: 'fas fa-clock',
-      title: 'Huấn luyện thú cưng',
-      description: 'Huấn luyện 1-1 giúp cải thiện hành vi',
-      price: 45.0
-    }
-  ];
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoadingServices(true);
+      setServicesError('');
+      try {
+        const list = await getActiveServices();
+        if (!cancelled && Array.isArray(list)) setServices(list);
+      } catch (e) {
+        if (!cancelled) setServicesError('Không tải được dịch vụ.');
+      } finally {
+        if (!cancelled) setLoadingServices(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div>
@@ -100,21 +100,18 @@ const HomePage = () => {
           <h2 className="mb-0">Dịch vụ</h2>
           <Link to="/services" className="text-decoration-none">Xem tất cả dịch vụ <i class="fa-solid fa-arrow-right"></i></Link>
         </div>
-        <div className="row">
-          {services.map((s) => (
-            <div className="col-md-4 mb-4" key={s.key}>
-              <div className="card h-100 text-center">
-                <div className="card-body d-flex flex-column">
-                  <i className={`${s.icon} fa-2x text-warning mb-3`}></i>
-                  <h5 className="mb-2">{s.title}</h5>
-                  <p className="text-muted flex-grow-1">{s.description}</p>
-                  <div className="fw-bold mb-3">${s.price.toFixed(2)}</div>
-                  <button className="btn btn-primary" onClick={() => navigate('/services')}>Đặt lịch</button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {loadingServices && (
+          <div className="text-muted">Đang tải dịch vụ...</div>
+        )}
+        {!loadingServices && servicesError && (
+          <div className="text-danger mb-3">{servicesError}</div>
+        )}
+        {!loadingServices && services.length > 0 && (
+          <ServicesGrid services={services} onBook={() => navigate('/services')} />
+        )}
+        {!loadingServices && !servicesError && services.length === 0 && (
+          <div className="text-center text-muted">Chưa có dịch vụ để hiển thị.</div>
+        )}
       </div>
     </div>
   );
