@@ -1,4 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import ServicesGrid from './ServicesGrid';
+import { getActiveServices } from '../../data/services';
 import { useAuth } from '../../context/AuthContext';
 import { useAppointment } from '../../context/AppointmentContext';
 import { useToast } from '../../context/ToastContext';
@@ -81,29 +83,28 @@ const ServicesPage = () => {
     }
   };
 
-  const services = [
-    {
-      key: 'grooming',
-      icon: 'fas fa-heart',
-      title: 'Tắm rửa & cắt tỉa lông',
-      description: 'Chăm sóc lông toàn diện: tắm, cắt tỉa, vệ sinh tai...',
-      price: 65.0
-    },
-    {
-      key: 'veterinary',
-      icon: 'fas fa-stethoscope',
-      title: 'Khám sức khỏe thú y',
-      description: 'Khám tổng quát bởi bác sĩ thú y giàu kinh nghiệm',
-      price: 85.0
-    },
-    {
-      key: 'training',
-      icon: 'fas fa-clock',
-      title: 'Huấn luyện thú cưng',
-      description: 'Huấn luyện 1-1 giúp cải thiện hành vi',
-      price: 45.0
-    }
-  ];
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState('');
+  const didFetchRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoadingServices(true);
+      setServicesError('');
+      try {
+        const list = await getActiveServices();
+        if (!cancelled && Array.isArray(list)) setServices(list);
+      } catch (e) {
+        if (!cancelled) setServicesError('Không tải được dịch vụ.');
+      } finally {
+        if (!cancelled) setLoadingServices(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleBookFromCard = (serviceKey) => {
     setFormData(prev => ({ ...prev, serviceType: serviceKey }));
@@ -126,20 +127,19 @@ const ServicesPage = () => {
         <p className="text-center text-muted mb-4 mx-auto" style={{ maxWidth: 760 }}>
           Lựa chọn từ danh sách dịch vụ chuyên nghiệp, được thiết kế toàn diện cho nhu cầu của thú cưng. Từ tắm rửa, cắt tỉa lông đến khám sức khỏe định kỳ và huấn luyện 1-1, chúng tôi cam kết mang đến trải nghiệm an toàn, chất lượng và chu đáo nhất.
           </p>
-        <div className="row mb-5">
-          {services.map((s) => (
-            <div className="col-md-4 mb-4" key={s.key}>
-              <div className="card h-100 text-center">
-                <div className="card-body d-flex flex-column">
-                  <i className={`${s.icon} fa-2x text-warning mb-3`}></i>
-                  <h5 className="mb-2">{s.title}</h5>
-                  <p className="text-muted flex-grow-1">{s.description}</p>
-                  <div className="fw-bold mb-3">${s.price.toFixed(2)}</div>
-                  <button className="btn btn-primary" onClick={() => handleBookFromCard(s.key)}>Đặt lịch</button>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="mb-5">
+          {loadingServices && (
+            <div className="text-muted text-center">Đang tải dịch vụ...</div>
+          )}
+          {!loadingServices && servicesError && (
+            <div className="text-danger text-center mb-3">{servicesError}</div>
+          )}
+          {!loadingServices && services.length > 0 && (
+            <ServicesGrid services={services} onBook={handleBookFromCard} />
+          )}
+          {!loadingServices && !servicesError && services.length === 0 && (
+            <div className="text-center text-muted">Chưa có dịch vụ để hiển thị.</div>
+          )}
         </div>
 
         <div ref={formRef} className="card">
@@ -156,10 +156,9 @@ const ServicesPage = () => {
                   required
                 >
                   <option value="">Chọn dịch vụ</option>
-                  <option value="grooming">Tắm rửa & cắt tỉa lông</option>
-                  <option value="veterinary">Khám sức khỏe thú y</option>
-                  <option value="training">Huấn luyện thú cưng</option>
-                  <option value="boarding">Gửi thú cưng</option>
+                  {services.map((s) => (
+                    <option key={s.key} value={s.key}>{s.title}</option>
+                  ))}
                 </select>
                 {errors.serviceType && (
                   <div className="invalid-feedback">{errors.serviceType}</div>
