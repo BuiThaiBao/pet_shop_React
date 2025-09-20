@@ -1,37 +1,23 @@
-<<<<<<< HEAD
-# Không push node_modules 
-node_modules/ 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Build output 
-build/ 
-dist/ 
+node_modules
+dist
+dist-ssr
+*.local
 
-# File môi trường 
-.env 
-
-# Hệ điều hành 
-.DS_Store 
-Thumbs.db 
-
-# IDE / Editor 
-.vscode/ 
-.idea/
-=======
-# Không push node_modules
-node_modules/
-
-# Build output
-build/
-dist/
-
-# File môi trường
-.env
-
-# Hệ điều hành
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
-
-# IDE / Editor
-.vscode/
-.idea/
->>>>>>> e6c5eee56da5833cfaa478ab4b6563de8c1bc0fb
+*.suo
+.ntvs
+*.njsproj
+*.sln
