@@ -31,7 +31,7 @@ export const mapServiceDto = (dto) => ({
 let servicesCache = null;
 let inFlightPromise = null;
 
-export async function getActiveServices(apiUrl = '/api/services/active') {
+export async function getActiveServices(apiUrl = '/api/v1/services/active') {
   if (servicesCache) return servicesCache;
   if (inFlightPromise) return inFlightPromise;
 

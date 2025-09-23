@@ -92,13 +92,14 @@ const LoginPage = () => {
                 <h2 className="text-center mb-4">Đăng nhập</h2>
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="mb-3">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Email hoặc Username</label>
                     <input 
                       type="email" 
                       className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      placeholder="Email or username"
                       required
                     />
                     {errors.email && (
@@ -114,6 +115,7 @@ const LoginPage = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      placeholder="Password"
                       required
                     />
                     {errors.password && (

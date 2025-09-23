@@ -73,7 +73,7 @@ const Header = () => {
             {user ? (
               <div className="dropdown">
                 <button className="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  <i className="fas fa-user"></i> {user.name}
+                  <i className="fas fa-user"></i> {user.fullName}
                 </button>
                 <ul className="dropdown-menu">
                   <li><Link className="dropdown-item" to="/profile">Thông tin cá nhân</Link></li>
