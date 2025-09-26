@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import ServicesGrid from './ServicesGrid';
 import { getActiveServices } from '../../data/services';
 import { useAuth } from '../../context/AuthContext';
-import { useAppointment } from '../../context/AppointmentContext';
 import { useToast } from '../../context/ToastContext';
 
 const ServicesPage = () => {
@@ -18,8 +17,7 @@ const ServicesPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formRef = useRef(null);
-  const { user } = useAuth();
-  const { addAppointment } = useAppointment();
+  const { user, apiFetch } = useAuth();
   const { showToast } = useToast();
 
   const handleInputChange = (e) => {
@@ -66,7 +64,31 @@ const ServicesPage = () => {
 
     setIsSubmitting(true);
     try {
-      await addAppointment(formData);
+      // Map UI form to backend payload
+      const selectedService = services.find(s => s.key === formData.serviceType);
+      const serviceId = selectedService?.id;
+
+      if (!serviceId) {
+        throw new Error('Không xác định được dịch vụ. Vui lòng chọn lại.');
+      }
+
+      const isoDateTime = `${formData.appointmentDate}T${formData.appointmentTime}:00`;
+
+      const payload = {
+        serviceId: serviceId,
+        userId: user?.id,
+        namePet: formData.petName,
+        appoinmentStart: isoDateTime,
+        status: 'SCHEDULED',
+        notes: formData.notes || ''
+      };
+
+      // Call backend API (token automatically added via auth apiFetch)
+      const res = await apiFetch('/v1/appointments', {
+        method: 'POST',
+        body: payload,
+      });
+
       showToast('Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm.', 'success');
       setFormData({
         serviceType: '',
@@ -77,7 +99,8 @@ const ServicesPage = () => {
         notes: ''
       });
     } catch (error) {
-      showToast('Đặt lịch thất bại. Vui lòng thử lại.', 'error');
+      const msg = error?.message || 'Đặt lịch thất bại. Vui lòng thử lại.';
+      showToast(msg, 'error');
     } finally {
       setIsSubmitting(false);
     }

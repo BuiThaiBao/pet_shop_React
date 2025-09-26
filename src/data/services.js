@@ -20,6 +20,7 @@ export const formatDuration = (minutes) => {
 };
 
 export const mapServiceDto = (dto) => ({
+  id: dto.id,
   key: dto.name,
   icon: serviceIcons[dto.name] || 'fas fa-paw',
   title: dto.title || dto.name,

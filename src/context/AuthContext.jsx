@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       // Backend expects { username, password }
       const response = await baseApiFetch('/v1/auth/token', {
         method: 'POST',
-        body: { username: email, password },
+        body: { identifier: email, password },
       });
 
       // Expected structure: { result: { token, authenticated }, success, message }

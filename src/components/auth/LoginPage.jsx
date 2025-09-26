@@ -37,9 +37,7 @@ const LoginPage = () => {
     
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Vui lòng nhập email';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Vui lòng nhập email hợp lệ';
+      newErrors.email = 'Vui lòng nhập email hoặc username';
     }
     
     // Password validation
