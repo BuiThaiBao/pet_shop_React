@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { apiFetch as baseApiFetch } from '../utils/api';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext();
 
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState(null);
+  const { showToast } = useToast();
 
   // Initialize from storage
   useEffect(() => {
@@ -73,6 +75,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
+    showToast('Đăng xuất thành công', 'success');
   };
 
   const register = async (userData) => {

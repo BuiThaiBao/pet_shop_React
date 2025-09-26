@@ -89,7 +89,7 @@ const ServicesPage = () => {
         body: payload,
       });
 
-      showToast('Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm.', 'success');
+      showToast('Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm, hãy kiểm tra email của bạn.', 'success');
       setFormData({
         serviceType: '',
         petType: '',

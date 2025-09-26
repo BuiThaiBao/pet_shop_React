@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +12,8 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const { login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ const LoginPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -34,43 +36,43 @@ const LoginPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     // Email validation
     if (!formData.email) {
       newErrors.email = 'Vui lòng nhập email hoặc username';
     }
-    
+
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Vui lòng nhập mật khẩu';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await login(formData.email, formData.password);
       showToast('Đăng nhập thành công!', 'success');
-      
+
       // Handle remember me
       if (formData.rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
       } else {
         localStorage.removeItem('rememberedEmail');
       }
-      
+
       // Redirect to home page or previous page
       navigate('/');
     } catch (error) {
@@ -91,8 +93,8 @@ const LoginPage = () => {
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="mb-3">
                     <label className="form-label">Email hoặc Username</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                       name="email"
                       value={formData.email}
@@ -104,27 +106,42 @@ const LoginPage = () => {
                       <div className="invalid-feedback">{errors.email}</div>
                     )}
                   </div>
-                  
+
                   <div className="mb-3">
                     <label className="form-label">Mật khẩu</label>
-                    <input 
-                      type="password" 
-                      className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Password"
-                      required
-                    />
-                    {errors.password && (
-                      <div className="invalid-feedback">{errors.password}</div>
-                    )}
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        className={`form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="Password"
+                        required
+                      />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '10px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          cursor: 'pointer',
+                          color: '#6c757d'
+                        }}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </span>
+                      {errors.password && (
+                        <div className="invalid-feedback d-block">{errors.password}</div>
+                      )}
+                    </div>
                   </div>
-                  
+
                   <div className="mb-3 form-check">
-                    <input 
-                      type="checkbox" 
-                      className="form-check-input" 
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
                       id="rememberMe"
                       name="rememberMe"
                       checked={formData.rememberMe}
@@ -134,15 +151,15 @@ const LoginPage = () => {
                       Ghi nhớ đăng nhập
                     </label>
                   </div>
-                  
-                  <button 
-                    type="submit" 
+
+                  <button
+                    type="submit"
                     className="btn btn-primary w-100 mb-3"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                   </button>
-                  
+
                   <div className="text-center">
                     <Link to="/register" className="text-decoration-none">
                       Chưa có tài khoản? Đăng ký ngay
