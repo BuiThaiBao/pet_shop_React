@@ -1,21 +1,110 @@
 import React, { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
+const TERMS_CONTENT = (
+  <div>
+    <h4>Điều khoản sử dụng Pet Shop</h4>
+    <p>
+      Chào mừng bạn đến với Pet Shop! Trước khi sử dụng các dịch vụ và sản phẩm của chúng tôi, vui lòng đọc kỹ và hiểu rõ các điều khoản dưới đây. 
+      Việc bạn tiếp tục sử dụng đồng nghĩa rằng bạn đã đồng ý tuân thủ toàn bộ điều khoản.
+    </p>
+
+    <h5>1. Thông tin tài khoản và cá nhân</h5>
+    <ul>
+      <li>Bạn phải cung cấp thông tin cá nhân chính xác, đầy đủ và được cập nhật khi đăng ký tài khoản.</li>
+      <li>Bạn chịu trách nhiệm hoàn toàn đối với tính chính xác của thông tin mà bạn cung cấp.</li>
+      <li>Nếu phát hiện thông tin không đúng sự thật, Pet Shop có quyền đình chỉ hoặc hủy tài khoản của bạn.</li>
+    </ul>
+
+    <h5>2. Bảo mật tài khoản</h5>
+    <ul>
+      <li>Bạn có trách nhiệm bảo mật tên đăng nhập và mật khẩu.</li>
+      <li>Mọi hoạt động phát sinh từ tài khoản của bạn sẽ được coi là do bạn thực hiện.</li>
+      <li>Nếu phát hiện hành vi truy cập trái phép, bạn cần thông báo ngay cho Pet Shop.</li>
+    </ul>
+
+    <h5>3. Quyền riêng tư và bảo mật dữ liệu</h5>
+    <ul>
+      <li>Pet Shop cam kết bảo mật thông tin cá nhân của bạn theo chính sách bảo mật.</li>
+      <li>Chúng tôi không bán, chia sẻ hay trao đổi thông tin khách hàng cho bên thứ ba trừ khi có yêu cầu pháp luật.</li>
+      <li>Bạn đồng ý rằng Pet Shop có thể sử dụng dữ liệu của bạn để cải thiện dịch vụ, chăm sóc khách hàng và gửi thông báo liên quan.</li>
+    </ul>
+
+    <h5>4. Sử dụng dịch vụ</h5>
+    <ul>
+      <li>Không được sử dụng dịch vụ của Pet Shop cho các hoạt động vi phạm pháp luật.</li>
+      <li>Không được gây ảnh hưởng đến hệ thống, làm gián đoạn dịch vụ hoặc tấn công bảo mật.</li>
+      <li>Không được sử dụng hình ảnh, nội dung từ Pet Shop cho mục đích thương mại mà chưa có sự cho phép.</li>
+    </ul>
+
+    <h5>5. Đặt hàng và thanh toán</h5>
+    <ul>
+      <li>Khi đặt hàng, bạn cần cung cấp thông tin chính xác về địa chỉ giao hàng, phương thức thanh toán.</li>
+      <li>Đơn hàng chỉ được xác nhận khi bạn hoàn tất quá trình thanh toán theo hướng dẫn.</li>
+      <li>Trong một số trường hợp, Pet Shop có thể liên hệ với bạn để xác minh thông tin đơn hàng.</li>
+    </ul>
+
+    <h5>6. Giao hàng và đổi trả</h5>
+    <ul>
+      <li>Thời gian giao hàng có thể thay đổi tùy theo khu vực, điều kiện thời tiết hoặc yếu tố khách quan.</li>
+      <li>Bạn có quyền đổi/trả sản phẩm theo chính sách đổi trả được công bố trên website.</li>
+      <li>Pet Shop không chịu trách nhiệm cho thiệt hại phát sinh nếu bạn cung cấp sai địa chỉ giao hàng.</li>
+    </ul>
+
+    <h5>7. Trách nhiệm và giới hạn trách nhiệm</h5>
+    <ul>
+      <li>Pet Shop nỗ lực cung cấp dịch vụ tốt nhất nhưng không đảm bảo hệ thống hoạt động liên tục 100%.</li>
+      <li>Pet Shop không chịu trách nhiệm cho thiệt hại gián tiếp, đặc biệt hoặc hệ quả do việc sử dụng dịch vụ.</li>
+      <li>Bạn đồng ý rằng rủi ro khi sử dụng dịch vụ hoàn toàn thuộc về bạn.</li>
+    </ul>
+
+    <h5>8. Sở hữu trí tuệ</h5>
+    <ul>
+      <li>Tất cả nội dung trên Pet Shop (logo, hình ảnh, mã nguồn, thiết kế) đều thuộc quyền sở hữu trí tuệ của chúng tôi.</li>
+      <li>Nghiêm cấm sao chép, sử dụng, phân phối mà không có sự cho phép bằng văn bản từ Pet Shop.</li>
+    </ul>
+
+    <h5>9. Thay đổi và cập nhật điều khoản</h5>
+    <ul>
+      <li>Pet Shop có quyền thay đổi, cập nhật điều khoản này bất cứ lúc nào.</li>
+      <li>Chúng tôi sẽ thông báo các thay đổi trên website hoặc qua email.</li>
+      <li>Bạn có trách nhiệm kiểm tra và theo dõi các cập nhật thường xuyên.</li>
+    </ul>
+
+    <h5>10. Liên hệ hỗ trợ</h5>
+    <p>
+      Nếu có bất kỳ câu hỏi hoặc thắc mắc nào về điều khoản sử dụng, vui lòng liên hệ bộ phận hỗ trợ khách hàng của chúng tôi qua:
+    </p>
+    <ul>
+      <li><b>Email: support@petshop.vn</b></li>
+      <li><b>Hotline: 1900-1234</b></li>
+      <li><b>Địa chỉ: 123 Đường ABC, Thường Tín, TP. Hà Nội</b></li>
+    </ul>
+
+    <p>
+      Việc bạn nhấn nút "Đăng ký" đồng nghĩa với việc bạn đã đọc, hiểu và đồng ý tuân thủ toàn bộ Điều khoản sử dụng này.
+    </p>
+  </div>
+);
+
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
+    username: '',
     fullName: '',
     phone: '',
     email: '',
     password: '',
     confirmPassword: '',
-    address: '',
     agreeTerms: false
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const { register } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -39,6 +128,13 @@ const RegisterPage = () => {
   const validateForm = () => {
     const newErrors = {};
     
+        // Username validation
+    if (!formData.username.trim()) {
+      newErrors.username = 'Vui lòng nhập tên đăng nhập';
+    } else if (formData.username.length < 4) {
+      newErrors.username = 'Tên đăng nhập phải có ít nhất 4 ký tự';
+    }
+
     // Full name validation
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Vui lòng nhập họ tên';
@@ -61,9 +157,11 @@ const RegisterPage = () => {
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Vui lòng nhập mật khẩu';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
-    }
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+    }else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
+    newErrors.password = 'Mật khẩu phải chứa cả chữ và số';
+  }
     
     // Confirm password validation
     if (!formData.confirmPassword) {
@@ -71,12 +169,7 @@ const RegisterPage = () => {
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
     }
-    
-    // Address validation
-    if (!formData.address.trim()) {
-      newErrors.address = 'Vui lòng nhập địa chỉ';
-    }
-    
+  
     // Terms validation
     if (!formData.agreeTerms) {
       newErrors.agreeTerms = 'Bạn phải đồng ý với điều khoản';
@@ -96,16 +189,24 @@ const RegisterPage = () => {
     setIsSubmitting(true);
     
     try {
-      await register({
-        fullName: formData.fullName,
-        phone: formData.phone,
-        email: formData.email,
+      const response = await fetch('/v1/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: formData.username,
         password: formData.password,
-        address: formData.address
-      });
-      
+        email: formData.email,
+        fullName: formData.fullName,
+        phone: formData.phone
+      })
+    });
+    const data = await response.json();
+    if (data.success) {
       showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
       navigate('/login');
+    } else {
+      showToast(data.message || 'Đăng ký thất bại. Vui lòng thử lại.', 'error');
+    }
     } catch (error) {
       showToast('Đăng ký thất bại. Vui lòng thử lại.', 'error');
     } finally {
@@ -123,6 +224,20 @@ const RegisterPage = () => {
                 <h2 className="text-center mb-4">Đăng ký tài khoản</h2>
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="row">
+                    <div className="mb-3">
+                      <label className="form-label">Tên đăng nhập</label>
+                      <input 
+                        type="text" 
+                        className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      {errors.username && (
+                        <div className="invalid-feedback">{errors.username}</div>
+                      )}
+                    </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Họ và tên</label>
                       <input 
@@ -169,17 +284,32 @@ const RegisterPage = () => {
                   </div>
                   
                   <div className="row">
-                    <div className="col-md-6 mb-3">
+                    <div className="col-md-6 mb-3 position-relative">
                       <label className="form-label">Mật khẩu</label>
                       <input 
-                        type="password" 
-                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                        type={showPassword ? 'text' : 'password'}
+                        className={`form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
                         required
                         minLength="6"
                       />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: errors.password ? '45px' : '25px',
+                          top: errors.password ? '50%' : '69%',
+                          transform: 'translateY(-50%)',
+                          cursor: 'pointer',
+                          color: '#6c757d',
+                          fontSize: '1.25rem',
+                          zIndex: 2
+                        }}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </span>
                       {errors.password && (
                         <div className="invalid-feedback">{errors.password}</div>
                       )}
@@ -200,21 +330,6 @@ const RegisterPage = () => {
                     </div>
                   </div>
                   
-                  <div className="mb-3">
-                    <label className="form-label">Địa chỉ</label>
-                    <textarea 
-                      className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                      name="address"
-                      rows="3"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    {errors.address && (
-                      <div className="invalid-feedback">{errors.address}</div>
-                    )}
-                  </div>
-                  
                   <div className="mb-3 form-check">
                     <input 
                       type="checkbox" 
@@ -226,7 +341,13 @@ const RegisterPage = () => {
                       required
                     />
                     <label className="form-check-label" htmlFor="agreeTerms">
-                      Tôi đồng ý với điều khoản sử dụng
+                      Tôi đồng ý với{' '}
+                      <span
+                        style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+                        onClick={() => setShowTermsModal(true)}
+                      >
+                        điều khoản sử dụng
+                      </span>
                     </label>
                     {errors.agreeTerms && (
                       <div className="invalid-feedback">{errors.agreeTerms}</div>
@@ -252,6 +373,27 @@ const RegisterPage = () => {
           </div>
         </div>
       </div>
+      {/* Modal điều khoản sử dụng */}
+      {showTermsModal && (
+        <div className="modal fade show" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Điều khoản sử dụng</h5>
+                <button type="button" className="btn-close" onClick={() => setShowTermsModal(false)}></button>
+              </div>
+              <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                {TERMS_CONTENT}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowTermsModal(false)}>
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
