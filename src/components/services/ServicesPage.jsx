@@ -3,6 +3,7 @@ import ServicesGrid from './ServicesGrid';
 import { getActiveServices } from '../../data/services';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ServicesPage = () => {
   const [formData, setFormData] = useState({
@@ -13,12 +14,28 @@ const ServicesPage = () => {
     petName: '',
     notes: ''
   });
+
+  const navigate = useNavigate();
+  const routerLocation = useLocation();
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const formRef = useRef(null);
   const { user, apiFetch } = useAuth();
   const { showToast } = useToast();
+
+  // 🟢 Auto chọn dịch vụ khi được navigate từ HomePage
+  useEffect(() => {
+    if (routerLocation.state?.key) {
+      setFormData((prev) => ({ ...prev, serviceType: routerLocation.state.key }));
+
+      // Scroll tới form đặt lịch sau 1 chút để form render xong
+      setTimeout(() => {
+        if (formRef.current) {
+          formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+  }, [routerLocation.state]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +81,6 @@ const ServicesPage = () => {
 
     setIsSubmitting(true);
     try {
-      // Map UI form to backend payload
       const selectedService = services.find(s => s.key === formData.serviceType);
       const serviceId = selectedService?.id;
 
@@ -83,7 +99,6 @@ const ServicesPage = () => {
         notes: formData.notes || ''
       };
 
-      // Call backend API (token automatically added via auth apiFetch)
       const res = await apiFetch('/v1/appointments', {
         method: 'POST',
         body: payload,
@@ -109,7 +124,6 @@ const ServicesPage = () => {
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [servicesError, setServicesError] = useState('');
-  const didFetchRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -130,9 +144,13 @@ const ServicesPage = () => {
   }, []);
 
   const handleBookFromCard = (serviceKey) => {
-    setFormData(prev => ({ ...prev, serviceType: serviceKey }));
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (routerLocation.pathname === '/') {
+      navigate('/services', { state: { key: serviceKey } });
+    } else {
+      setFormData((prev) => ({ ...prev, serviceType: serviceKey }));
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 
@@ -142,14 +160,15 @@ const ServicesPage = () => {
         <div className="text-center mb-5">
           <h1 className="mb-3">Dịch vụ chăm sóc thú cưng chuyên nghiệp</h1>
           <p className="text-muted mb-0 mx-auto" style={{ maxWidth: 950 }}>
-          Đội ngũ bác sĩ thú y và chuyên viên chăm sóc giàu kinh nghiệm của chúng tôi cam kết mang đến dịch vụ toàn diện, an toàn và tận tâm cho thú cưng của bạn. Từ các dịch vụ làm đẹp như tắm, cắt tỉa lông, vệ sinh tai – răng miệng cho đến kiểm tra sức khỏe định kỳ, tiêm phòng và tư vấn dinh dưỡng, chúng tôi luôn đồng hành để thú cưng không chỉ khỏe mạnh mà còn thoải mái và hạnh phúc mỗi ngày. Chúng tôi tin rằng mỗi thú cưng đều xứng đáng được yêu thương và chăm sóc như một thành viên trong gia đình.
+            Đội ngũ bác sĩ thú y và chuyên viên chăm sóc giàu kinh nghiệm của chúng tôi cam kết mang đến dịch vụ toàn diện, an toàn và tận tâm cho thú cưng của bạn.
           </p>
         </div>
 
         <h3 className="text-center mb-3">Dịch vụ của chúng tôi</h3>
         <p className="text-center text-muted mb-4 mx-auto" style={{ maxWidth: 760 }}>
-          Lựa chọn từ danh sách dịch vụ chuyên nghiệp, được thiết kế toàn diện cho nhu cầu của thú cưng. Từ tắm rửa, cắt tỉa lông đến khám sức khỏe định kỳ và huấn luyện 1-1, chúng tôi cam kết mang đến trải nghiệm an toàn, chất lượng và chu đáo nhất.
-          </p>
+          Lựa chọn từ danh sách dịch vụ chuyên nghiệp, được thiết kế toàn diện cho nhu cầu của thú cưng.
+        </p>
+
         <div className="mb-5">
           {loadingServices && (
             <div className="text-muted text-center">Đang tải dịch vụ...</div>
@@ -171,7 +190,7 @@ const ServicesPage = () => {
             <form onSubmit={handleSubmit} noValidate>
               <div className="mb-3">
                 <label className="form-label">Loại dịch vụ</label>
-                <select 
+                <select
                   className={`form-select ${errors.serviceType ? 'is-invalid' : ''}`}
                   name="serviceType"
                   value={formData.serviceType}
@@ -187,10 +206,10 @@ const ServicesPage = () => {
                   <div className="invalid-feedback">{errors.serviceType}</div>
                 )}
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Loại thú cưng</label>
-                <select 
+                <select
                   className={`form-select ${errors.petType ? 'is-invalid' : ''}`}
                   name="petType"
                   value={formData.petType}
@@ -207,12 +226,12 @@ const ServicesPage = () => {
                   <div className="invalid-feedback">{errors.petType}</div>
                 )}
               </div>
-              
+
               <div className="row">
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Ngày hẹn</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     className={`form-control ${errors.appointmentDate ? 'is-invalid' : ''}`}
                     name="appointmentDate"
                     value={formData.appointmentDate}
@@ -225,7 +244,7 @@ const ServicesPage = () => {
                 </div>
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Giờ hẹn</label>
-                  <select 
+                  <select
                     className={`form-select ${errors.appointmentTime ? 'is-invalid' : ''}`}
                     name="appointmentTime"
                     value={formData.appointmentTime}
@@ -247,11 +266,11 @@ const ServicesPage = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Tên thú cưng</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className={`form-control ${errors.petName ? 'is-invalid' : ''}`}
                   name="petName"
                   value={formData.petName}
@@ -262,20 +281,20 @@ const ServicesPage = () => {
                   <div className="invalid-feedback">{errors.petName}</div>
                 )}
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Ghi chú</label>
-                <textarea 
-                  className="form-control" 
+                <textarea
+                  className="form-control"
                   rows="3"
                   name="notes"
                   value={formData.notes}
                   onChange={handleInputChange}
                 />
               </div>
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 className="btn btn-primary"
                 disabled={isSubmitting}
               >

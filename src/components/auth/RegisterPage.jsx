@@ -189,7 +189,7 @@ const RegisterPage = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/v1/users', {
+      const response = await fetch('api/v1/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
