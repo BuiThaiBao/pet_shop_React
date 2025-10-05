@@ -45,8 +45,10 @@ const LoginPage = () => {
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Vui lòng nhập mật khẩu';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+    } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
+    newErrors.password = 'Mật khẩu phải chứa cả chữ và số';
     }
 
     setErrors(newErrors);
@@ -123,8 +125,8 @@ const LoginPage = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         style={{
                           position: 'absolute',
-                          right: '10px',
-                          top: '50%',
+                          right: errors.password ? '40px' : '10px',
+                          top: errors.password? '29%' : '50%',
                           transform: 'translateY(-50%)',
                           cursor: 'pointer',
                           color: '#6c757d'

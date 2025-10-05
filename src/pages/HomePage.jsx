@@ -107,7 +107,7 @@ const HomePage = () => {
           <div className="text-danger mb-3">{servicesError}</div>
         )}
         {!loadingServices && services.length > 0 && (
-          <ServicesGrid services={services} onBook={() => navigate('/services')} />
+          <ServicesGrid services={services} onBook={(key) => navigate('/services',{state : { key }})} />
         )}
         {!loadingServices && !servicesError && services.length === 0 && (
           <div className="text-center text-muted">Chưa có dịch vụ để hiển thị.</div>
