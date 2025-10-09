@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import ProductCard from '../components/product/ProductCard';
 import ServicesGrid from '../components/services/ServicesGrid';
-import { getActiveServices } from '../data/services';
+import { servicesAPI } from '../api';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const HomePage = () => {
       setLoadingServices(true);
       setServicesError('');
       try {
-        const list = await getActiveServices();
+        const list = await servicesAPI.getActiveServices();
         if (!cancelled && Array.isArray(list)) setServices(list);
       } catch (e) {
         if (!cancelled) setServicesError('Không tải được dịch vụ.');

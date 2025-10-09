@@ -8,6 +8,7 @@ import React, {
 import { apiFetch as baseApiFetch } from "../utils/api";
 import { useToast } from "./ToastContext";
 import { jwtDecode } from "jwt-decode";
+import { authAPI, userAPI } from "../api";
 
 // Tạo context để chia sẻ trạng thái đăng nhập giữa các component
 const AuthContext = createContext();
@@ -70,10 +71,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       // Gọi API đăng nhập
-      const response = await baseApiFetch("/v1/auth/login", {
-        method: "POST",
-        body: { identifier: email, password }, // body gửi đi
-      });
+      const response = await authAPI.login(email, password);
 
       // API trả về { result: { token, authenticated }, success, message }
       const receivedToken = response?.result?.token;
@@ -110,10 +108,7 @@ export const AuthProvider = ({ children }) => {
   try {
     if (token) {
       // Gửi request logout kèm token hiện tại
-      await baseApiFetch("/v1/auth/logout", {
-        method: "POST",
-        body: { token } // gửi Bearer token trong body
-      });
+      await authAPI.logout(token);
     }
   } catch (err) {
     console.warn("⚠️ Logout API failed (có thể token đã hết hạn):", err.message);
@@ -179,10 +174,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       // Gọi API refresh token
-      const res = await baseApiFetch("/v1/auth/refresh-token", {
-        method: "POST",
-        body: { token: currentToken },
-      });
+      const res = await authAPI.refreshToken(currentToken);
 
       const newToken = res?.result?.token;
       if (newToken) {
@@ -222,7 +214,7 @@ export const AuthProvider = ({ children }) => {
       if (!useToken) throw new Error("No auth token");
 
       // Gọi API /v1/users/myInfo
-      const res = await baseApiFetch("/v1/users/myInfo", { token: useToken });
+      const res = await userAPI.getMyInfo(useToken);
       const userData = res?.result || res;
 
       // Nếu có dữ liệu → lưu vào state + localStorage

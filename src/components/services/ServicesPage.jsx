@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ServicesGrid from './ServicesGrid';
-import { getActiveServices } from '../../data/services';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { servicesAPI } from '../../api';
 
 const ServicesPage = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ const ServicesPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef(null);
-  const { user, apiFetch } = useAuth();
+  const { user, token } = useAuth();
   const { showToast } = useToast();
 
   // 🟢 Auto chọn dịch vụ khi được navigate từ HomePage
@@ -98,11 +98,8 @@ const ServicesPage = () => {
         status: 'SCHEDULED',
         notes: formData.notes || ''
       };
-
-      const res = await apiFetch('/v1/appointments', {
-        method: 'POST',
-        body: payload,
-      });
+      
+      const res = await servicesAPI.createAppointment(payload, token);
 
       showToast('Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm, hãy kiểm tra email của bạn.', 'success');
       setFormData({
@@ -131,7 +128,7 @@ const ServicesPage = () => {
       setLoadingServices(true);
       setServicesError('');
       try {
-        const list = await getActiveServices();
+        const list = await servicesAPI.getActiveServices();
         if (!cancelled && Array.isArray(list)) setServices(list);
       } catch (e) {
         if (!cancelled) setServicesError('Không tải được dịch vụ.');

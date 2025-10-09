@@ -126,7 +126,7 @@ const LoginPage = () => {
                         style={{
                           position: 'absolute',
                           right: errors.password ? '40px' : '10px',
-                          top: errors.password? '29%' : '50%',
+                          top: errors.password? '29%' : '45%',
                           transform: 'translateY(-50%)',
                           cursor: 'pointer',
                           color: '#6c757d'
