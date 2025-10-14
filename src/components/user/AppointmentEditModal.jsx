@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { servicesAPI } from '../../api/services';
+import { useToast } from '../../context/ToastContext';
 
 const ModalShell = ({ isOpen, title, onClose, children, footer }) => {
 	useEffect(() => {
@@ -26,35 +28,87 @@ const ModalShell = ({ isOpen, title, onClose, children, footer }) => {
 };
 
 const AppointmentEditModal = ({ isOpen, onClose, initial, onSave }) => {
+	const { showToast } = useToast();
 	const [form, setForm] = useState({
 		serviceType: '',
 		petType: '',
 		petName: '',
 		appointmentDate: '',
-		appointmentTime: ''
+		appointmentTime: '',
+		notes: ''
 	});
+	const [services, setServices] = useState([]);
 
 	useEffect(() => {
 		if (isOpen) {
+			servicesAPI.getActiveServices().then(setServices);
+		}
+	}, [isOpen]);
+
+	useEffect(() => {
+		if (isOpen && initial && services.length > 0) {
+			let mappedServiceType = '';
+			if (initial.serviceType) mappedServiceType = initial.serviceType;
+			else if (initial.serviceName) {
+				// Tìm service có title trùng với serviceName
+				const found = services.find(s => s.title === initial.serviceName);
+				if (found) mappedServiceType = found.key;
+			}
+			let mappedPetType = '';
+			if (initial.petType) mappedPetType = initial.petType;
+			else if (initial.speciePet) {
+				const specie = initial.speciePet.trim().toLowerCase();
+				if (specie === 'chó') mappedPetType = 'dog';
+				else if (specie === 'mèo') mappedPetType = 'cat';
+				else if (specie === 'chim') mappedPetType = 'bird';
+				else mappedPetType = 'other';
+			}
 			setForm({
-				serviceType: initial?.serviceType || '',
-				petType: initial?.petType || '',
-				petName: initial?.petName || '',
-				appointmentDate: initial?.appointmentDate || '',
-				appointmentTime: initial?.appointmentTime || ''
+				serviceType: mappedServiceType,
+				petType: mappedPetType,
+				petName: initial.petName || initial.namePet || '',
+				appointmentDate: initial.appointmentDate || (initial.appoinmentStart ? initial.appoinmentStart.slice(0,10) : ''),
+				appointmentTime: initial.appointmentTime || (initial.appoinmentStart ? initial.appoinmentStart.slice(11,16) : ''),
+				notes: initial.notes || ''
 			});
 		}
-	}, [isOpen, initial]);
+	}, [isOpen, initial, services]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setForm((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		onSave?.(form);
-		onClose();
+		try {
+			const token = localStorage.getItem('auth_token');
+			const selectedService = services.find(s => s.key === form.serviceType);
+			const serviceId = selectedService ? selectedService.id : null;
+			const payload = {
+				id: initial.id,
+				serviceId: serviceId,
+				namePet: form.petName,
+				speciePet:
+					form.petType === 'dog' ? 'Chó' :
+					form.petType === 'cat' ? 'Mèo' :
+					form.petType === 'bird' ? 'Chim' :
+					'Khác',
+				appoinmentStart: `${form.appointmentDate}T${form.appointmentTime}:00`,
+				notes: form.notes
+			};
+			const response = await servicesAPI.updateAppointment(payload, token);
+			if (response.success) {
+				showToast('Cập nhật dịch vụ thành công', 'success');
+				onSave?.(form);
+				onClose();
+			} else {
+				showToast(response.message || 'Có lỗi xảy ra', 'error');
+			}
+		} catch (error) {
+			console.error('Error updating appointment:', error);
+			showToast(error.message || 'Có lỗi xảy ra khi cập nhật', 'error');
+		}
 	};
 
 	return (
@@ -74,10 +128,9 @@ const AppointmentEditModal = ({ isOpen, onClose, initial, onSave }) => {
 					<label className="form-label">Loại dịch vụ</label>
 					<select className="form-select" name="serviceType" value={form.serviceType} onChange={handleChange}>
 						<option value="">Chọn dịch vụ</option>
-						<option value="grooming">Tắm rửa & cắt tỉa lông</option>
-						<option value="veterinary">Khám sức khỏe</option>
-						<option value="training">Huấn luyện thú cưng</option>
-						<option value="boarding">Gửi thú cưng</option>
+						{services.map(s => (
+							<option key={s.key} value={s.key}>{s.title}</option>
+						))}
 					</select>
 				</div>
 				<div className="row">
@@ -115,6 +168,10 @@ const AppointmentEditModal = ({ isOpen, onClose, initial, onSave }) => {
 							<option value="17:00">17:00</option>
 						</select>
 					</div>
+				</div>
+				<div className="mb-3">
+					<label className="form-label">Ghi chú</label>
+					<textarea className="form-control" name="notes" value={form.notes} onChange={handleChange} rows={3} placeholder="Ghi chú thêm (nếu có)" />
 				</div>
 			</form>
 		</ModalShell>

@@ -94,6 +94,7 @@ const ServicesPage = () => {
         serviceId: serviceId,
         userId: user?.id,
         namePet: formData.petName,
+        speciePet: formData.petType,
         appoinmentStart: isoDateTime,
         status: 'SCHEDULED',
         notes: formData.notes || ''
@@ -214,10 +215,10 @@ const ServicesPage = () => {
                   required
                 >
                   <option value="">Chọn loại thú cưng</option>
-                  <option value="dog">Chó</option>
-                  <option value="cat">Mèo</option>
-                  <option value="bird">Chim</option>
-                  <option value="other">Khác</option>
+                  <option value="Chó">Chó</option>
+                  <option value="Mèo">Mèo</option>
+                  <option value="Chim">Chim</option>
+                  <option value="Khác">Khác</option>
                 </select>
                 {errors.petType && (
                   <div className="invalid-feedback">{errors.petType}</div>

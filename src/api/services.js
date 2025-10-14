@@ -84,9 +84,20 @@ export const servicesAPI = {
     return await apiFetch('/v1/appointments', { token });
   },
 
-  // Cập nhật appointment
-  updateAppointment: async (appointmentId, updateData, token) => {
-    return await apiFetch(`/v1/appointments/${appointmentId}`, {
+  // Lấy danh sách appointments phân trang
+  getAppointmentsPaged: async ({ token, userId, roleName, page = 0, size = 8 }) => {
+    return await apiFetch(`/v1/appointments/list?page=${page}&size=${size}`, {
+      method: 'POST',
+      body: { userId, roleName },
+      token
+    });
+  },
+
+
+
+  // Cập nhật appointment (theo API mới)
+  updateAppointment: async (updateData, token) => {
+    return await apiFetch('/v1/appointments/update', {
       method: 'PUT',
       body: updateData,
       token
