@@ -106,8 +106,9 @@ export const servicesAPI = {
 
   // Hủy appointment
   cancelAppointment: async (appointmentId, token) => {
-    return await apiFetch(`/v1/appointments/${appointmentId}`, {
-      method: 'DELETE',
+    return await apiFetch(`/v1/appointments/cancel`, {
+      method: 'PUT',
+      body:  appointmentId ,
       token
     });
   }

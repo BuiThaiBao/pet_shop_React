@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import AppointmentEditModal from './AppointmentEditModal';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { servicesAPI } from '../../api/services';
 
 const PAGE_SIZE = 6;
 
 const AppointmentsPage = () => {
   const { user, token } = useAuth();
+  const { showToast } = useToast();
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,8 +47,22 @@ const AppointmentsPage = () => {
     closeEdit();
   };
 
-  const handleCancel = (id) => {
-    setItems((prev) => prev.filter((a) => a.id !== id));
+  const handleCancel = async (id) => {
+    if (!window.confirm('Bạn có chắc chắn muốn hủy lịch hẹn này không?')) {
+      return;
+    }
+    try {
+      const response = await servicesAPI.cancelAppointment(id, token);
+      if (response.success) {
+        showToast('Hủy lịch hẹn thành công', 'success');
+        fetchAppointments(); // Tải lại danh sách sau khi hủy thành công
+      } else {
+        showToast( response.message || 'Không thể hủy lịch hẹn. Vui lòng thử lại sau.','error');
+      }
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      showToast( 'Đã có lỗi xảy ra khi hủy lịch hẹn. Vui lòng thử lại sau.','error');
+    }
   };
 
   return (
