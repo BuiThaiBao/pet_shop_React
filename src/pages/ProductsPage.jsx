@@ -1,10 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { products } from '../data/products';
 import ProductCard from '../components/product/ProductCard';
+import { categoriesApi } from '../api/categories';
 
 const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState([]);
   const pageSize = 6;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getCategories();
+        if (response.success && response.result) {
+          setCategories(response.result);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const totalPages = Math.max(1, Math.ceil(products.length / pageSize));
   const paginated = useMemo(() => {
@@ -34,10 +50,11 @@ const ProductsPage = () => {
                 <label className="form-label">Danh mục</label>
                 <select className="form-select">
                   <option value="">Tất cả danh mục</option>
-                  <option value="food">Thức ăn</option>
-                  <option value="toys">Đồ chơi</option>
-                  <option value="grooming">Chăm sóc</option>
-                  <option value="accessories">Phụ kiện</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="mb-3">
