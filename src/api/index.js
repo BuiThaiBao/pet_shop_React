@@ -3,3 +3,4 @@ export { authAPI } from "./auth";
 export { servicesAPI } from "./services";
 export { userAPI } from "./user";
 export { categoriesApi } from "./categories";
+export { addressAPI } from "./address";

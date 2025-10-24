@@ -113,7 +113,7 @@ const AppointmentsPage = () => {
                               ? 'badge bg-warning'
                               : appointment.status === 'COMPLETED'
                               ? 'badge bg-primary'
-                              : appointment.status === 'CANCELLED'
+                              : appointment.status === 'CANCELED'
                               ? 'badge bg-danger'
                               : 'badge bg-secondary'
                           }
@@ -122,7 +122,7 @@ const AppointmentsPage = () => {
                             ? 'Đã đặt'
                             : appointment.status === 'COMPLETED'
                             ? 'Hoàn thành'
-                            : appointment.status === 'CANCELLED'
+                            : appointment.status === 'CANCELED'
                             ? 'Đã hủy'
                             : appointment.status}
                         </span>

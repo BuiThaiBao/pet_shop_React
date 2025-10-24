@@ -143,3 +143,27 @@ body {
 .nav-pills .nav-link.active {
     background-color: var(--primary-orange);
 }
+
+.address-link {
+    transition: color 0.3s ease;
+}
+
+.address-link:hover {
+    color: var(--text-muted) !important;
+}
+
+.email-link {
+    transition: color 0.3s ease;
+}
+
+.email-link:hover {
+    color: var(--text-muted) !important;
+}
+
+.service-link {
+    transition: color 0.3s ease;
+}
+
+.service-link:hover {
+    color: var(--text-muted) !important;
+}
