@@ -138,34 +138,6 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // --- 5️⃣ Đặt lịch refresh token ---
-  const scheduleTokenRefresh = useCallback(
-    (tokenToUse) => {
-      try {
-        const decoded = jwtDecode(tokenToUse);
-        const exp = decoded.exp * 1000;
-        const now = Date.now();
-
-        // Tự refresh token trước khi nó hết hạn 1 phút
-        const refreshTime = exp - now - 60 * 1000;
-
-        if (refreshTime > 0) {
-          console.log(
-            `⏰ Will refresh token in ${Math.round(refreshTime / 1000)} seconds`
-          );
-
-          // Đặt hẹn giờ để gọi API refresh
-          setTimeout(async () => {
-            await refreshToken();
-          }, refreshTime);
-        }
-      } catch (err) {
-        console.error("Cannot decode token", err);
-      }
-    },
-    []
-  );
-
   // --- 6️⃣ Hàm refresh token ---
   const refreshToken = useCallback(async () => {
     // Lấy token hiện tại từ localStorage (tránh trường hợp token cũ trong state)
@@ -182,9 +154,6 @@ export const AuthProvider = ({ children }) => {
         setToken(newToken);
         localStorage.setItem("auth_token", newToken);
 
-        // Đặt lại lịch refresh cho token mới
-        scheduleTokenRefresh(newToken);
-
         console.log("✅ Token refreshed successfully");
         return newToken;
       }
@@ -193,7 +162,61 @@ export const AuthProvider = ({ children }) => {
       logout(); // Nếu refresh thất bại → logout luôn
     }
     return null;
-  }, [logout, scheduleTokenRefresh]);
+  }, []);
+
+  // --- 5️⃣ Đặt lịch refresh token ---
+  const scheduleTokenRefresh = useCallback(
+    (tokenToUse) => {
+      try {
+        const decoded = jwtDecode(tokenToUse);
+        const exp = decoded.exp * 1000;
+        const now = Date.now();
+
+        // Token có thời gian sống 3600s (1h), refresh trước khi hết hạn ~5 phút (300s)
+        const leadTimeMs = 300 * 1000; // 5 phút
+        const remaining = exp - now;
+        let refreshTime = remaining - leadTimeMs;
+
+        console.log(`🔍 Token remaining time: ${Math.round(remaining / 1000)} seconds`);
+
+        // Nếu còn rất ít thời gian, refresh sớm hơn để an toàn
+        if (remaining <= leadTimeMs) {
+          if (remaining > 30 * 1000) {
+            refreshTime = Math.max(5 * 1000, remaining - 30 * 1000);
+          } else {
+            // Hết hạn rất gần -> refresh gần như ngay lập tức
+            refreshTime = 5 * 1000;
+          }
+        }
+
+        if (refreshTime > 0) {
+          console.log(
+            `⏰ Will refresh token in ${Math.round(refreshTime / 1000)} seconds`
+          );
+
+          // Đặt hẹn giờ để gọi API refresh
+          setTimeout(async () => {
+            const newToken = await refreshToken();
+            if (newToken) {
+              // Sau khi refresh thành công, đặt lại lịch cho token mới
+              scheduleTokenRefresh(newToken);
+            }
+          }, refreshTime);
+        } else {
+          // Token đã hết hạn hoặc sắp hết -> refresh ngay
+          console.log("⚠️ Token expiring soon, refreshing immediately...");
+          refreshToken().then((newToken) => {
+            if (newToken) {
+              scheduleTokenRefresh(newToken);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Cannot decode token", err);
+      }
+    },
+    [refreshToken]
+  );
 
   // --- 7️⃣ Hàm gọi API có tự động gắn token ---
   const apiFetch = useCallback(
