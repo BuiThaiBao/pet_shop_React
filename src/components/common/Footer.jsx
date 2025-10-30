@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { servicesAPI } from '../../api/services';
 
 const Footer = () => {
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const activeServices = await servicesAPI.getActiveServices();
+        setServices(activeServices);
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+      }
+    };
+    fetchServices();
+  }, []);
+
   return (
     <footer className="footer">
       <div className="container">
@@ -26,20 +41,23 @@ const Footer = () => {
               <li><Link to="/products?category=accessories" className="text-white-50">Phụ kiện</Link></li>
             </ul>
           </div>
-          <div className="col-lg-2 col-md-6 mb-4">
+          <div className="col-lg-3 col-md-6 mb-4">
             <h6>Dịch vụ</h6>
             <ul className="list-unstyled">
-              <li><a href="#" className="text-white-50">Tắm rửa</a></li>
-              <li><a href="#" className="text-white-50">Khám bệnh</a></li>
-              <li><a href="#" className="text-white-50">Huấn luyện</a></li>
-              <li><a href="#" className="text-white-50">Gửi thú cưng</a></li>
+              {services.map((service) => (
+                <li key={service.id}>
+                  <Link to="/services" className="text-white text-decoration-none service-link">
+                    {service.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="col-lg-4 mb-4">
+          <div className="col-lg-3 mb-4">
             <h6>Liên hệ</h6>
-            <p><i className="fas fa-map-marker-alt me-2"></i>123 Đường ABC, Quận 1, TP.HCM</p>
+            <p><i className="fas fa-map-marker-alt me-2"></i><a href="https://www.google.com/maps/place/Thanh+H%C3%B3a,+Vi%E1%BB%87t+Nam/@19.8088549,105.7084813,12z/data=!3m1!4b1!4m6!3m5!1s0x3136f7fe237e2277:0xa13832367bfc213a!8m2!3d19.806692!4d105.7851816!16zL20vMDdtMjBt?entry=ttu&g_ep=EgoyMDI1MTAyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" className="text-white text-decoration-none address-link" title="Bấm để biết định vị">123 Đường ABC, Quận 1, TP.HCM</a></p>
             <p><i className="fas fa-phone me-2"></i>0123 456 789</p>
-            <p><i className="fas fa-envelope me-2"></i>info@pawmarthome.com</p>
+            <p><i className="fas fa-envelope me-2"></i><a href="mailto:petshop.service.vn@gmail.com" className="text-white text-decoration-none email-link" title="Gửi email">petshop.service.vn@gmail.com</a></p>
           </div>
         </div>
         <hr className="text-white-50" />

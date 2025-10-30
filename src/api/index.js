@@ -4,3 +4,4 @@ export { servicesAPI } from "./services";
 export { userAPI } from "./user";
 export { categoriesApi } from "./categories";
 export { productsApi } from "./products";
+export { addressAPI } from "./address";
