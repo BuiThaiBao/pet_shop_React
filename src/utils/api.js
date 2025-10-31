@@ -7,7 +7,8 @@
 //  ✅ Xử lý JSON response & lỗi gọn gàng
 // ----------------------
 
-const API_BASE = "/api"; // Đường dẫn gốc cho API backend (ví dụ: /api/v1/...)
+const API_BASE =
+  process.env.REACT_APP_API_BASE_URL || "/api"; // Đường dẫn gốc cho API backend (ví dụ: /api/v1/...)
 
 // Hàm chính
 export async function apiFetch(
