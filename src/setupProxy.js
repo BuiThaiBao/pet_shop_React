@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     "/api",
     createProxyMiddleware({
-      target: "http://localhost:8080",
+      target: "https://serverpetshop.onrender.com",
       changeOrigin: true,
       secure: false,
       ws: false,
